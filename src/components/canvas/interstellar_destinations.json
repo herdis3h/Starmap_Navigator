@@ -1,0 +1,145 @@
+[
+	{
+		"star_system": "Alpha Centauri",
+		"star_type": "G-type",
+		"distance_from_earth_ly": 4.37,
+		"habitability": true,
+		"resources": [
+			"Iron",
+			"Water Ice",
+			"Helium"
+		],
+		"coordinates": [
+			-0.2,
+			0.0,
+			2.5
+		],
+		"color": "#ffdd55",
+		"planets": [
+			{
+				"name": "Proxima b",
+				"description": "A potentially habitable exoplanet orbiting Proxima Centauri.",
+				"image_url": "https://example.com/proxima_b.jpg",
+				"color": "#3a7bd5"
+			},
+			{
+				"name": "Proxima c",
+				"description": "A super-Earth planet with icy conditions.",
+				"image_url": "https://example.com/proxima_c.jpg",
+				"color": "#d8ebf2"
+			}
+		]
+	},
+	{
+		"star_system": "TRAPPIST-1",
+		"star_type": "M-type",
+		"distance_from_earth_ly": 39.5,
+		"habitability": true,
+		"resources": [
+			"Silicon",
+			"Carbon",
+			"Hydrogen"
+		],
+		"coordinates": [
+			-2.4,
+			3.5,
+			-1.8
+		],
+		"color": "#ff7733",
+		"planets": [
+			{
+				"name": "TRAPPIST-1d",
+				"description": "An exoplanet within the habitable zone, possibly with liquid water.",
+				"image_url": "https://example.com/trappist_1d.jpg",
+				"color": "#5ef1f2"
+			},
+			{
+				"name": "TRAPPIST-1e",
+				"description": "A rocky exoplanet with Earth-like properties.",
+				"image_url": "https://example.com/trappist_1e.jpg",
+				"color": "#ff8c42"
+			}
+		]
+	},
+	{
+		"star_system": "Gliese 581",
+		"star_type": "M-type",
+		"distance_from_earth_ly": 20.3,
+		"habitability": false,
+		"resources": [
+			"Nickel",
+			"Sulfur",
+			"Methane"
+		],
+		"coordinates": [
+			-3.5,
+			-1.2,
+			1.4
+		],
+		"color": "#ff5500",
+		"planets": [
+			{
+				"name": "Gliese 581g",
+				"description": "An exoplanet that could support life under specific conditions.",
+				"image_url": "https://example.com/gliese_581g.jpg",
+				"color": "#2a9d8f"
+			},
+			{
+				"name": "Gliese 581c",
+				"description": "A hot, rocky planet with extreme surface conditions.",
+				"image_url": "https://example.com/gliese_581c.jpg",
+				"color": "#ff4500"
+			}
+		]
+	},
+	{
+		"star_system": "Kepler-442",
+		"star_type": "K-type",
+		"distance_from_earth_ly": 1206,
+		"habitability": true,
+		"resources": [
+			"Water Ice",
+			"Oxygen",
+			"Carbon"
+		],
+		"coordinates": [
+			-3.6,
+			2.1,
+			-4.2
+		],
+		"color": "#ffcc00",
+		"planets": [
+			{
+				"name": "Kepler-442b",
+				"description": "A super-Earth with conditions potentially suitable for life.",
+				"image_url": "https://example.com/kepler_442b.jpg",
+				"color": "#99ccff"
+			}
+		]
+	},
+	{
+		"star_system": "Barnard's Star",
+		"star_type": "M-type",
+		"distance_from_earth_ly": 5.96,
+		"habitability": false,
+		"resources": [
+			"Iron",
+			"Neon",
+			"Ammonia"
+		],
+		"coordinates": [
+			2.9,
+			-1.5,
+			3.3
+		],
+		"color": "#ff6600",
+		"planets": [
+			{
+				"name": "Barnard's Star b",
+				"description": "A cold super-Earth orbiting Barnard’s Star.",
+				"image_url": "https://example.com/barnards_star_b.jpg",
+				"color": "#c0c0c0"
+			}
+		]
+	}
+]
