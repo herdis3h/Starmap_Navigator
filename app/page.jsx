@@ -1,12 +1,28 @@
-'use client'
-
-import { useRef, Suspense } from 'react'
+import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 
-export default function Page() {
-  const ref = useRef()
+async function fetch3DData() {
+  console.log('Fetching JSON securely... (SERVER-SIDE)', process.env.API_SECRET)
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/interstellar_destinations`, {
+    headers: {
+      Authorization: `Bearer ${process.env.API_SECRET}`,
+    },
+  })
+
+  if (!res.ok) throw new Error('Unauthorized: Failed to fetch JSON')
+
+  const data = await res.json()
+  console.log('JSON Data on the SERVER:', data)
+  return data
+}
+
+export default async function Page() {
+  const jsonData = await fetch3DData()
+  console.log('JSON Data on the SERVER:', jsonData)
+
   return (
     <>
       <Suspense
@@ -15,6 +31,7 @@ export default function Page() {
         }
       >
         <Scene
+          jsonData={jsonData}
           style={{
             position: 'fixed',
             top: 0,
@@ -23,7 +40,6 @@ export default function Page() {
             height: '100vh',
             pointerEvents: 'none',
           }}
-          eventSource={ref}
           eventPrefix='client'
         />
       </Suspense>
