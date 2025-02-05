@@ -1,10 +1,13 @@
+'use client'
+
+
 import React from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Center, OrbitControls } from '@react-three/drei'
 import Planet from './Planet'
 import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing'
 
-export default function Scene() {
+export default function Scene({ jsonData }: { jsonData: any }) {
   return (
     <Canvas
       camera={{
@@ -17,7 +20,7 @@ export default function Scene() {
     >
       <color args={['#000000']} attach='background' />
       <Center>
-        <Planet />
+        <Planet  interstellarData={jsonData} />
       </Center>
       <OrbitControls />
       {/* <ambientLight intensity={1.0} />

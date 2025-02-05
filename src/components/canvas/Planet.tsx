@@ -4,7 +4,7 @@ import { shaderMaterial, OrbitControls, Sparkles, Text, Points, Point, PointMate
 import { useControls } from 'leva'
 import { Color, Vector2, Vector3, DoubleSide, AdditiveBlending } from 'three'
 
-import interstellarData from './interstellar_destinations.json'
+// import interstellarData from './interstellar_destinations.json'
 
 const SparkleLineShaderMaterial = shaderMaterial(
   {
@@ -75,10 +75,10 @@ const SparkleLineShaderMaterial = shaderMaterial(
 )
 extend({ SparkleLineShaderMaterial })
 
-export default function Planet() {
+export default function Planet({ interstellarData }: { interstellarData: any }) {
   const { size } = useThree()
-  const starMaterialRef = useRef()
-  const planetMaterialRef = useRef()
+  // const starMaterialRef = useRef()
+  // const planetMaterialRef = useRef()
 
   // ✅ Leva Controls for dynamic size adjustment
   const { planetSize, starSize } = useControls({
@@ -117,16 +117,16 @@ export default function Planet() {
   const { stars, planets, planetLabels } = positions
 
   // ✅ Update shader every frame
-  useFrame(({ clock }) => {
-    if (starMaterialRef.current) {
-      starMaterialRef.current.uTime = clock.getElapsedTime()
-      starMaterialRef.current.uResolution.set(size.width, size.height)
-    }
-    if (planetMaterialRef.current) {
-      planetMaterialRef.current.uTime = clock.getElapsedTime()
-      planetMaterialRef.current.uResolution.set(size.width, size.height)
-    }
-  })
+  // useFrame(({ clock }) => {
+  //   if (starMaterialRef.current) {
+  //     starMaterialRef.current.uTime = clock.getElapsedTime()
+  //     starMaterialRef.current.uResolution.set(size.width, size.height)
+  //   }
+  //   if (planetMaterialRef.current) {
+  //     planetMaterialRef.current.uTime = clock.getElapsedTime()
+  //     planetMaterialRef.current.uResolution.set(size.width, size.height)
+  //   }
+  // })
 
   return (
     <group position={[0, 0, 0]} dispose={null}>
