@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { extend, useFrame } from '@react-three/fiber'
-import { shaderMaterial, Sparkles, Text, Line } from '@react-three/drei'
+import { Html, shaderMaterial, Sparkles, Text, Line } from '@react-three/drei'
 import {
   Mesh,
   Color,
@@ -10,6 +10,8 @@ import {
   AdditiveBlending,
   ShaderMaterial as ShaderMaterialType,
 } from 'three'
+import { useSpring, animated } from '@react-spring/three'
+import { useSpring as useSpringWeb, animated as animatedWeb } from '@react-spring/web'
 
 interface SparkleLineShaderMaterialType extends ShaderMaterialType {
   uTime: number
@@ -120,6 +122,12 @@ const galaxyColors = [
 ]
 
 export default function Planet({ interstellarData }: { interstellarData: any }) {
+  const [selectedStar, setSelectedStar] = useState<any>(null)
+
+  const handleStarClick = (star) => {
+    setSelectedStar((prev) => (prev === star ? null : star))
+  }
+
   const [positions] = useState(() => {
     return interstellarData.map((system) => ({
       position: system.coordinates,
@@ -133,17 +141,29 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
     }))
   })
 
+  const infoBoxAnimation = useSpringWeb({
+    opacity: selectedStar ? 1 : 0,
+    transform: selectedStar ? 'scale(1)' : 'scale(0.8)',
+    config: { tension: 170, friction: 12 },
+  })
+
+  useEffect(() => {
+    console.log('positions', positions)
+  }, [])
+
   return (
     <group position={[0, 0, 0]} dispose={null}>
       <Sparkles count={300} scale={20} size={6} speed={0.4} />
       {positions.map((star, index: number) => (
         <group key={index}>
           <Star
+            onClick={() => handleStarClick(star)}
             color={star.color}
             planets={star.planets}
             name={star.name}
             position={star.position}
             rotationSpeed={0.4}
+            isSelected={selectedStar === star}
           />
           {index < positions.length - 1 && (
             <Line
@@ -157,13 +177,83 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
               transparent
             />
           )}
+          {selectedStar === star && (
+            <Html position={[star.position[0] + 1, star.position[1], star.position[2]]} left>
+              <animatedWeb.div
+                style={{
+                  ...infoBoxAnimation,
+                  background: 'rgba(10, 20, 53, 0.87)',
+                  color: 'white',
+                  padding: '10px',
+                  border: '2px solid #00389c',
+                  borderRadius: '8px',
+                  width: '370px',
+                  fontSize: '14px',
+                  textAlign: 'left',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                  }}
+                >
+                  <strong style={{ fontSize: '16px', display: 'block' }}>{star.name}</strong>
+                  <button
+                    onClick={() => setSelectedStar(null)}
+                    style={{
+                      marginTop: '5px',
+                      cursor: 'pointer',
+                      background: '#00389c',
+                      color: 'white',
+                      border: 'none',
+                      padding: '5px 10px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+                <p
+                  style={{
+                    marginBottom: '10px',
+                  }}
+                >
+                  Within this system contains these planets:
+                </p>
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+                  {selectedStar.planets.map((planet, i) => {
+                    return (
+                      <li style={{ display: 'flex', flexDirection: 'column', gap: '2px' }} key={planet.name}>
+                        <strong
+                          style={{
+                            display: 'block',
+                            whiteSpace: 'nowrap',
+                            fontSize: '12px',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {' '}
+                          {planet.name}
+                        </strong>
+                        <p>{planet.description}</p>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </animatedWeb.div>
+            </Html>
+          )}
         </group>
       ))}
     </group>
   )
 }
 
-function Star({ planets, name, position, rotationSpeed, color }) {
+function Star({ planets, name, position, rotationSpeed, color, onClick, isSelected }) {
   const meshRef = useRef<Mesh>(null)
   const materialRef = useRef<SparkleLineShaderMaterialType>(null)
 
@@ -186,9 +276,14 @@ function Star({ planets, name, position, rotationSpeed, color }) {
     }
   })
 
+  const { scale } = useSpring({
+    scale: isSelected ? 1.5 : 1,
+    config: { mass: 1, tension: 170, friction: 12 },
+  })
+
   return (
     <>
-      <mesh ref={meshRef} position={position}>
+      <animated.mesh ref={meshRef} scale={scale} position={position} onClick={onClick}>
         <sphereGeometry args={[1.0, 16, 16]} />
         <sparkleLineShaderMaterial
           ref={materialRef}
@@ -197,7 +292,7 @@ function Star({ planets, name, position, rotationSpeed, color }) {
           side={DoubleSide}
           transparent={true}
         />
-      </mesh>
+      </animated.mesh>
 
       <Text position={[position[0] + 0.5, position[1] + 0.5, position[2]]} fontSize={0.3} color='white'>
         {name}
@@ -208,10 +303,10 @@ function Star({ planets, name, position, rotationSpeed, color }) {
           key={planet.name + i}
           count={1}
           color={planet.color}
-          scale={0.5}
-          size={24}
+          scale={0.2}
+          size={80}
           position={sparklePosition}
-          speed={0.5}
+          speed={0.7}
           opacity={0.9}
         />
       ))}
