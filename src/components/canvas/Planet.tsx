@@ -1,17 +1,27 @@
-import React, { useRef, useMemo, useState } from 'react'
-import { extend, useFrame, useThree } from '@react-three/fiber'
-import { shaderMaterial, OrbitControls, Sparkles, Text, Points, Point, PointMaterial } from '@react-three/drei'
-import { useControls } from 'leva'
-import { Color, Vector2, Vector3, DoubleSide, AdditiveBlending } from 'three'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
+import { extend, useFrame } from '@react-three/fiber'
+import { shaderMaterial, Sparkles, Text } from '@react-three/drei'
+import {
+  Mesh,
+  Color,
+  Vector2,
+  Vector3,
+  DoubleSide,
+  AdditiveBlending,
+  ShaderMaterial as ShaderMaterialType,
+} from 'three'
 
-// import interstellarData from './interstellar_destinations.json'
+interface SparkleLineShaderMaterialType extends ShaderMaterialType {
+  uTime: number
+  uColor: Vector3
+  uResolution: Vector2
+}
 
 const SparkleLineShaderMaterial = shaderMaterial(
   {
     uTime: 0,
-    uColor: new Color('red'),
+    uColor: new Color(),
     uResolution: new Vector2(),
-    isStar: false,
   },
   `
     precision highp float;
@@ -24,22 +34,18 @@ const SparkleLineShaderMaterial = shaderMaterial(
 
     void main() {
        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-        vec4 viewPosition = viewMatrix * modelPosition;
-        vec4 projectionPosition = projectionMatrix * viewPosition;
+       vec4 viewPosition = viewMatrix * modelPosition;
+       vec4 projectionPosition = projectionMatrix * viewPosition;
 
-        gl_Position = projectionPosition;
-        vUv = uv;
-
-        
-        vec4 modelNormal = modelMatrix * vec4(normal, 0.0);
-
-        vPosition = modelPosition.xyz;
-        vNormal = modelNormal.xyz;
+       gl_Position = projectionPosition;
+       vUv = uv;
+       vec4 modelNormal = modelMatrix * vec4(normal, 0.0);
+       vPosition = modelPosition.xyz;
+       vNormal = modelNormal.xyz;
     }
   `,
   `
     precision highp float;
-    uniform bool isStar;
     varying vec3 vPosition;
     varying vec3 vNormal;
 
@@ -47,24 +53,17 @@ const SparkleLineShaderMaterial = shaderMaterial(
     uniform vec3 uColor;
 
     void main() {
-
       vec3 normal = normalize(vNormal);
+      if(!gl_FrontFacing) normal *= -1.0;
 
-      if(!gl_FrontFacing)
-        normal *=  - 1.0;
-
-      float stripes = mod( (vPosition.y - uTime * 0.02) * 30.0, 1.0);
+      float stripes = mod((vPosition.y - uTime * 0.02) * 30.0, 1.0);
       stripes = pow(stripes, 3.0);
 
-      // Fresenl
       vec3 viewDir = normalize(vPosition - cameraPosition);
       float fresenl = dot(viewDir, normal) + 1.0;
       fresenl = pow(fresenl, 2.0);
-
-      // falloff
       float falloff = smoothstep(0.8, 0.0, fresenl);
 
-      // Holograph
       float holo = stripes * fresenl;
       holo += fresenl * 1.22;
       holo *= falloff;
@@ -72,125 +71,91 @@ const SparkleLineShaderMaterial = shaderMaterial(
       gl_FragColor = vec4(uColor, holo);
     }
   `,
-)
+) as unknown as new () => SparkleLineShaderMaterialType
+
 extend({ SparkleLineShaderMaterial })
 
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    sparkleLineShaderMaterial: React.JSX.IntrinsicElements['mesh'] & {
+      ref?: React.Ref<SparkleLineShaderMaterialType>
+      uTime?: number
+      uColor?: Color
+      uResolution?: Vector2
+    }
+  }
+}
+
+const galaxyColors = [
+  '#ffdd55',
+  '#ff7733',
+  '#ff5500',
+  '#ffcc00',
+  '#ff6600',
+  '#99ccff',
+  '#5ef1f2',
+  '#d8ebf2',
+  '#3a7bd5',
+  '#ff8c42',
+  '#2a9d8f',
+  '#c0c0c0',
+  '#ff4500',
+  '#663399',
+  '#9acd32',
+  '#ffdd55',
+  '#ffcc00',
+  '#ff7733',
+  '#ff4500',
+  '#ff0000',
+  '#ffd700',
+  '#ff6600',
+  '#99ccff',
+  '#5ef1f2',
+  '#d8ebf2',
+  '#3a7bd5',
+  '#ffffff',
+  '#f0f8ff',
+  '#b0c4de',
+  '#c0c0c0',
+]
+
 export default function Planet({ interstellarData }: { interstellarData: any }) {
-  const { size } = useThree()
-  // const starMaterialRef = useRef()
-  // const planetMaterialRef = useRef()
-
-  // ✅ Leva Controls for dynamic size adjustment
-  const { planetSize, starSize } = useControls({
-    planetSize: { value: 0.5, min: 0.1, max: 2, step: 0.1 },
-    starSize: { value: 1.0, min: 0.5, max: 3, step: 0.1 },
-  })
-
-  // ✅ Store star & planet positions
   const [positions] = useState(() => {
-    const stars = []
-    const planets = []
-    const labels = []
-    const planetLabels = []
-
-    interstellarData.forEach((system) => {
-      const [sx, sy, sz] = system.coordinates
-      stars.push({
-        position: [sx, sy, sz],
-        name: system.star_system,
-        color: new Color(system.color),
-        planets: system.planets,
-      })
-
-      // system.planets.forEach((planet) => {
-      //   const [px, py, pz] = planet.coordinates
-      //   planetLabels.push({
-      //     name: planet.name,
-      //     position: [px + 0.2, py, pz],
-      //   })
-      // })
-    })
-
-    return { stars, planets, labels, planetLabels }
+    return interstellarData.map((system) => ({
+      position: system.coordinates,
+      name: system.star_system,
+      color: new Color(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]),
+      planets: system.planets.map((planet, i) => ({
+        ...planet,
+        index: i,
+        sparkleColor: new Color(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]),
+      })),
+    }))
   })
-
-  const { stars, planets, planetLabels } = positions
-
-  // ✅ Update shader every frame
-  // useFrame(({ clock }) => {
-  //   if (starMaterialRef.current) {
-  //     starMaterialRef.current.uTime = clock.getElapsedTime()
-  //     starMaterialRef.current.uResolution.set(size.width, size.height)
-  //   }
-  //   if (planetMaterialRef.current) {
-  //     planetMaterialRef.current.uTime = clock.getElapsedTime()
-  //     planetMaterialRef.current.uResolution.set(size.width, size.height)
-  //   }
-  // })
 
   return (
     <group position={[0, 0, 0]} dispose={null}>
-      <OrbitControls makeDefault />
-
       <Sparkles count={300} scale={20} size={6} speed={0.4} />
-
-      {stars.map((star, index) => (
+      {positions.map((star, index) => (
         <Star
-          planets={star.planets}
           key={index}
+          color={star.color}
+          planets={star.planets}
           name={star.name}
           position={star.position}
           rotationSpeed={0.4}
-          color={star.color}
-          index={index}
         />
       ))}
-
-      {/* {planets.map((planet, index) => (
-        <mesh key={index} position={planet.position}>
-          <sphereGeometry args={[planetSize, 16, 16]} />
-          <meshStandardMaterial wireframe color='green' emissive='green' emissiveIntensity={1.0} />
-        </mesh>
-      ))} */}
-
-      {/* <Points limit={planets.length}>
-        <PointMaterial
-          transparent
-          vertexColors
-          size={20}
-          sizeAttenuation={false}
-          depthTest={false}
-          toneMapped={false}
-        />
-        {planets.map((position, i) => (
-          <PointEvent key={i} index={i} position={position} />
-        ))}
-      </Points> */}
-
-      {/* {stars.map((star, index) => (
-        <Text
-          key={index}
-          position={[star.position[0] + 0.5, star.position[1], star.position[2]]}
-          fontSize={0.3}
-          color='white'
-        >
-          {star.name}
-        </Text>
-      ))} */}
     </group>
   )
 }
 
-// ✅ Star Component with Dynamic Shader Instance
-function Star({ planets, name, position, rotationSpeed, color, index }) {
-  const meshRef = useRef()
-  const materialRef = useRef()
-  const { size } = useThree()
+function Star({ planets, name, position, rotationSpeed, color }) {
+  const meshRef = useRef<Mesh>(null)
+  const materialRef = useRef<SparkleLineShaderMaterialType>(null)
 
   const sparklePosition = useMemo(() => {
-    // Reset position from metch
     if (!meshRef.current) return position
-
     const worldPos = new Vector3()
     meshRef.current.getWorldPosition(worldPos)
     return [worldPos.x, worldPos.y, worldPos.z]
@@ -198,12 +163,10 @@ function Star({ planets, name, position, rotationSpeed, color, index }) {
 
   useFrame(({ clock }) => {
     const elapsed = clock.getElapsedTime()
-
     if (materialRef.current) {
       materialRef.current.uTime = elapsed
-      materialRef.current.uColor.set(color)
+      materialRef.current.uColor = color
     }
-
     if (meshRef.current) {
       meshRef.current.rotation.y = Math.sin(elapsed * rotationSpeed)
       meshRef.current.rotation.x = Math.cos(elapsed * rotationSpeed * 0.8)
@@ -215,26 +178,30 @@ function Star({ planets, name, position, rotationSpeed, color, index }) {
       <mesh ref={meshRef} position={position}>
         <sphereGeometry args={[1.0, 16, 16]} />
         <sparkleLineShaderMaterial
+          ref={materialRef}
           blending={AdditiveBlending}
           depthWrite={false}
           side={DoubleSide}
-          ref={materialRef}
           transparent={true}
-          isStar={true}
         />
       </mesh>
-      <Text key={name} position={[position[0] + 0.5, position[1] + 0.5, position[2]]} fontSize={0.3} color='white'>
+
+      <Text position={[position[0] + 0.5, position[1] + 0.5, position[2]]} fontSize={0.3} color='white'>
         {name}
       </Text>
-      <Sparkles
-        count={planets.length}
-        color={new Color(planets[index]?.color)}
-        scale={0.5}
-        size={24}
-        position={sparklePosition}
-        speed={0.5}
-        opacity={0.9}
-      />
+
+      {planets.map((planet, i) => (
+        <Sparkles
+          key={planet.name + i}
+          count={1}
+          color={planet.color}
+          scale={0.5}
+          size={24}
+          position={sparklePosition}
+          speed={0.5}
+          opacity={0.9}
+        />
+      ))}
     </>
   )
 }
