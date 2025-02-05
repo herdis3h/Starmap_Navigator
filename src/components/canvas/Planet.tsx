@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { extend, useFrame } from '@react-three/fiber'
-import { shaderMaterial, Sparkles, Text } from '@react-three/drei'
+import { shaderMaterial, Sparkles, Text, Line } from '@react-three/drei'
 import {
   Mesh,
   Color,
@@ -136,15 +136,28 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
   return (
     <group position={[0, 0, 0]} dispose={null}>
       <Sparkles count={300} scale={20} size={6} speed={0.4} />
-      {positions.map((star, index) => (
-        <Star
-          key={index}
-          color={star.color}
-          planets={star.planets}
-          name={star.name}
-          position={star.position}
-          rotationSpeed={0.4}
-        />
+      {positions.map((star, index: number) => (
+        <group key={index}>
+          <Star
+            color={star.color}
+            planets={star.planets}
+            name={star.name}
+            position={star.position}
+            rotationSpeed={0.4}
+          />
+          {index < positions.length - 1 && (
+            <Line
+              points={[
+                [star.position[0], star.position[1], star.position[2]],
+                [positions[index + 1].position[0], positions[index + 1].position[1], positions[index + 1].position[2]],
+              ]}
+              color={star.color}
+              linewidth={1}
+              opacity={1}
+              transparent
+            />
+          )}
+        </group>
       ))}
     </group>
   )
