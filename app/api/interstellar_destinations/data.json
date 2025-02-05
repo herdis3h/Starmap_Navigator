@@ -11,8 +11,8 @@
 		],
 		"coordinates": [
 			-0.2,
-			0.0,
-			2.5
+			-1.0,
+			3.0
 		],
 		"color": "#ffdd55",
 		"planets": [
@@ -41,9 +41,9 @@
 			"Hydrogen"
 		],
 		"coordinates": [
-			-2.4,
-			3.5,
-			-1.8
+			-3.4,
+			-4.5,
+			1.8
 		],
 		"color": "#ff7733",
 		"planets": [
