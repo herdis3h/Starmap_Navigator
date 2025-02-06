@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react'
+import React, { useRef, useMemo, useState } from 'react'
 import { extend, useFrame } from '@react-three/fiber'
 import { Html, shaderMaterial, Sparkles, Text, Line } from '@react-three/drei'
 import {
@@ -12,6 +12,7 @@ import {
 } from 'three'
 import { useSpring, animated } from '@react-spring/three'
 import { useSpring as useSpringWeb, animated as animatedWeb } from '@react-spring/web'
+import { StarSystem, PlanetData } from '@/types/InterstellarData'
 
 interface SparkleLineShaderMaterialType extends ShaderMaterialType {
   uTime: number
@@ -121,10 +122,24 @@ const galaxyColors = [
   '#c0c0c0',
 ]
 
-export default function Planet({ interstellarData }: { interstellarData: any }) {
-  const [selectedStar, setSelectedStar] = useState<any>(null)
+export default function Planet({ interstellarData }: { interstellarData: StarSystem[] }) {
+  type StarData = {
+    position: [number, number, number]
+    name: string
+    color: Color
+    planets: {
+      index: number
+      sparkleColor: Color
+      name: string
+      description: string
+      image_url?: string
+      color: string
+    }[]
+  }
 
-  const handleStarClick = (star) => {
+  const [selectedStar, setSelectedStar] = useState<StarData | null>(null)
+
+  const handleStarClick = (star: StarData) => {
     setSelectedStar((prev) => (prev === star ? null : star))
   }
 
@@ -133,7 +148,7 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
       position: system.coordinates,
       name: system.star_system,
       color: new Color(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]),
-      planets: system.planets.map((planet, i) => ({
+      planets: system.planets.map((planet: PlanetData, i: number) => ({
         ...planet,
         index: i,
         sparkleColor: new Color(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]),
@@ -147,13 +162,17 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
     config: { tension: 170, friction: 12 },
   })
 
-  useEffect(() => {
-    console.log('positions', positions)
-  }, [])
+  const sparklesAnimation = useSpring({
+    opacity: 1,
+    from: { opacity: 0 },
+    config: { duration: 2000 },
+  })
 
   return (
     <group position={[0, 0, 0]} dispose={null}>
-      <Sparkles count={300} scale={20} size={6} speed={0.4} />
+      <animated.group style={sparklesAnimation}>
+        <Sparkles count={300} scale={20} size={6} speed={0.4} />
+      </animated.group>
       {positions.map((star, index: number) => (
         <group key={index}>
           <Star
@@ -178,7 +197,7 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
             />
           )}
           {selectedStar === star && (
-            <Html position={[star.position[0] + 1, star.position[1], star.position[2]]} left>
+            <Html position={[star.position[0] + 1, star.position[1], star.position[2]]}>
               <animatedWeb.div
                 style={{
                   ...infoBoxAnimation,
@@ -225,7 +244,7 @@ export default function Planet({ interstellarData }: { interstellarData: any }) 
                   Within this system contains these planets:
                 </p>
                 <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
-                  {selectedStar.planets.map((planet, i) => {
+                  {selectedStar.planets.map((planet: PlanetData) => {
                     return (
                       <li style={{ display: 'flex', flexDirection: 'column', gap: '2px' }} key={planet.name}>
                         <strong
