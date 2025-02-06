@@ -51,4 +51,8 @@ To make the galaxy feel more **organic**, I **randomized the colors** of stars a
 - Enhance **camera movement**, especially when clicking on stars.
 - Ideally, users would be able to **zoom in and explore each planet** within a star system, making the experience more **interactive**.
 
+### **State management**
+
+- Add state management once needed
+
 ---
