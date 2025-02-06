@@ -1,9 +1,10 @@
 import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
+import { StarSystem } from '@/types/InterstellarData'
 
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 
-async function fetch3DData() {
+async function fetch3DData(): Promise<StarSystem[]> {
   console.log('Fetching JSON securely... (SERVER-SIDE)', process.env.API_SECRET)
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/interstellar_destinations`, {
@@ -14,7 +15,7 @@ async function fetch3DData() {
 
   if (!res.ok) throw new Error('Unauthorized: Failed to fetch JSON')
 
-  const data = await res.json()
+  const data: StarSystem[] = await res.json()
   console.log('JSON Data on the SERVER:', data)
   return data
 }
@@ -30,18 +31,7 @@ export default async function Page() {
           <div className='mx-auto flex w-full flex-col flex-wrap items-center md:flex-row lg:w-4/5'>Loading...</div>
         }
       >
-        <Scene
-          jsonData={jsonData}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            pointerEvents: 'none',
-          }}
-          eventPrefix='client'
-        />
+        <Scene jsonData={jsonData} />
       </Suspense>
     </>
   )
