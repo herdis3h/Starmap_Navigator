@@ -1,25 +1,21 @@
+// app/page.tsx
 import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
+import path from 'path'
+import { promises as fs } from 'fs'
 import { StarSystem } from '@/types/InterstellarData'
 
-// Dynamically import the Scene component
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 
-// Fetch data directly in the server component
 async function fetch3DData(): Promise<StarSystem[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/data.json`)
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch JSON data')
-  }
-
-  const data: StarSystem[] = await res.json()
+  const filePath = path.join(process.cwd(), 'public', 'data', 'interstellar_destinations.json')
+  const fileContents = await fs.readFile(filePath, 'utf8')
+  const data = JSON.parse(fileContents)
   return data
 }
 
-// Page component as a server component
 export default async function Page() {
-  const jsonData = await fetch3DData() // Fetch data here
+  const jsonData = await fetch3DData()
 
   return (
     <>
