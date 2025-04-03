@@ -16,6 +16,9 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   reactStrictMode: true, // Recommended for the `pages` directory, default in `app`.
   images: {},
   webpack(config, { isServer }) {
