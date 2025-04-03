@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
-const API_SECRET = process.env.NEXT_API_SECRET
+// const API_SECRET = process.env.NEXT_API_SECRET
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('Authorization')
+  // const authHeader = req.headers.get('Authorization')
   // if (!authHeader || authHeader !== `Bearer ${API_SECRET}`) {
   //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   // }
