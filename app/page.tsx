@@ -1,34 +1,34 @@
-// import { Suspense } from 'react'
-// import dynamic from 'next/dynamic'
-// import { StarSystem } from '@/types/InterstellarData'
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+import { StarSystem } from '@/types/InterstellarData'
 
-// const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
+const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 
-// async function fetch3DData(): Promise<StarSystem[]> {
-//   // console.log('Fetching JSON securely... (SERVER-SIDE)', process.env.NEXT_API_SECRET)
+async function fetch3DData(): Promise<StarSystem[]> {
+  // console.log('Fetching JSON securely... (SERVER-SIDE)', process.env.NEXT_API_SECRET)
 
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/data.json`)
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/data.json`)
 
-//   // if (!res.ok) throw new Error('Unauthorized: Failed to fetch JSON')
+  // if (!res.ok) throw new Error('Unauthorized: Failed to fetch JSON')
 
-//   const data: StarSystem[] = await res.json()
-//   console.log('JSON Data on the SERVER:', data)
-//   return data
-// }
+  const data: StarSystem[] = await res.json()
+  console.log('JSON Data on the SERVER:', data)
+  return data
+}
 
-// export default async function Page() {
-//   const jsonData = await fetch3DData()
-//   console.log('JSON Data on the SERVER:', jsonData)
+export default async function Page() {
+  const jsonData = await fetch3DData()
+  console.log('JSON Data on the SERVER:', jsonData)
 
-//   return (
-//     <>
-//       <Suspense
-//         fallback={
-//           <div className='mx-auto flex w-full flex-col flex-wrap items-center md:flex-row lg:w-4/5'>Loading...</div>
-//         }
-//       >
-//         <Scene jsonData={jsonData} />
-//       </Suspense>
-//     </>
-//   )
-// }
+  return (
+    <>
+      <Suspense
+        fallback={
+          <div className='mx-auto flex w-full flex-col flex-wrap items-center md:flex-row lg:w-4/5'>Loading...</div>
+        }
+      >
+        <Scene jsonData={jsonData} />
+      </Suspense>
+    </>
+  )
+}
