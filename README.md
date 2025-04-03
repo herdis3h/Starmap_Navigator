@@ -7,7 +7,7 @@ Ensure you have **Node.js 14+** installed on your system.
 Create a **`.env.local`** file in the root directory and add the following keys (adjust as needed for your local setup):
 
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-API_SECRET="1234"
+NEXT_PUBLIC_PI_SECRET="1234"
 
 # Application Architecture & Technology Choices
 

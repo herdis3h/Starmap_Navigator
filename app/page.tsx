@@ -5,11 +5,11 @@ import { StarSystem } from '@/types/InterstellarData'
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 
 async function fetch3DData(): Promise<StarSystem[]> {
-  console.log('Fetching JSON securely... (SERVER-SIDE)', process.env.API_SECRET)
+  console.log('Fetching JSON securely... (SERVER-SIDE)', process.env.NEXT_API_SECRET)
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/interstellar_destinations`, {
     headers: {
-      Authorization: `Bearer ${process.env.API_SECRET}`,
+      Authorization: `Bearer ${process.env.NEXT_API_SECRET}`,
     },
   })
 

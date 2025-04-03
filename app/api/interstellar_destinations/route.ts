@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
-const API_SECRET = process.env.API_SECRET
+const API_SECRET = process.env.NEXT_API_SECRET
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('Authorization')
