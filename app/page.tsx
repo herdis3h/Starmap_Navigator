@@ -7,14 +7,9 @@ const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 async function fetch3DData(): Promise<StarSystem[]> {
   console.log('Fetching JSON (SERVER-SIDE)')
 
-  // Use relative URL for internal API endpoint
-  const res = await fetch('/api/interstellar_destinations')
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/interstellar_destinations`)
 
-  if (!res.ok) {
-    const errorText = await res.text()
-    console.error('Fetch error text:', errorText)
-    throw new Error('Failed to fetch JSON')
-  }
+  // if (!res.ok) throw new Error('Failed to fetch JSON')
 
   const data: StarSystem[] = await res.json()
   console.log('JSON Data on the SERVER:', data)
